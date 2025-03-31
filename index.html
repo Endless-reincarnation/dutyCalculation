@@ -2,52 +2,76 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>值班日期计算器</title>
     <style>
-        .container {
-            max-width: 800px;
-            margin: 20px auto;
-            padding: 20px;
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
             font-family: Arial, sans-serif;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 100%;
+            margin: 10px auto;
+            padding: 10px;
         }
 
         .form-section {
             background: #f9f9f9;
-            padding: 20px;
+            padding: 15px;
             border-radius: 5px;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
         }
 
         .form-group {
-            margin: 15px 0;
+            margin: 10px 0;
             display: flex;
-            align-items: center;
+            flex-direction: column; /* 移动端垂直排列 */
         }
 
         label {
-            width: 120px;
-            margin-right: 10px;
+            margin-bottom: 5px;
+            font-size: 14px;
         }
 
         input {
-            padding: 5px;
-            width: 200px;
+            padding: 8px;
+            font-size: 16px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            width: 100%;
         }
 
         .button-group {
-            margin-top: 20px;
             display: flex;
             gap: 10px;
+            margin-top: 15px;
         }
 
         button {
-            padding: 8px 20px;
+            padding: 10px;
+            font-size: 16px;
+            flex: 1;
             cursor: pointer;
+            border: none;
+            border-radius: 4px;
+            background: #007bff;
+            color: white;
+        }
+
+        button:hover {
+            background: #0056b3;
         }
 
         .calendar-section {
             background: #f9f9f9;
-            padding: 20px;
+            padding: 15px;
             border-radius: 5px;
             display: none;
         }
@@ -59,16 +83,23 @@
             margin-bottom: 10px;
         }
 
+        .calendar-header button {
+            padding: 8px;
+            font-size: 14px;
+        }
+
         .calendar {
             display: grid;
             grid-template-columns: repeat(7, 1fr);
-            gap: 5px;
-            text-align: center;
+            gap: 2px;
+            font-size: 14px;
         }
 
         .calendar div {
-            padding: 10px;
+            padding: 8px;
+            text-align: center;
             border: 1px solid #ddd;
+            min-height: 40px; /* 确保触摸区域足够大 */
         }
 
         .duty-day {
@@ -78,6 +109,30 @@
 
         .today {
             background: #e0f7fa;
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 600px) {
+            .calendar {
+                font-size: 12px;
+            }
+
+            .calendar div {
+                padding: 6px;
+                min-height: 30px;
+            }
+
+            .form-group {
+                margin: 8px 0;
+            }
+
+            .button-group {
+                flex-direction: column;
+            }
+
+            button {
+                padding: 12px;
+            }
         }
     </style>
 </head>
@@ -119,7 +174,7 @@
             if (savedFirstDate && savedInterval) {
                 document.getElementById('firstDate').value = savedFirstDate;
                 document.getElementById('interval').value = savedInterval;
-                calculateDates(); // 自动计算并展示
+                calculateDates();
             }
         };
 
@@ -127,29 +182,25 @@
             const firstDate = document.getElementById('firstDate').value;
             const interval = document.getElementById('interval').value;
 
-            // 输入验证
             if (!firstDate || !interval || parseInt(interval) <= 0) {
                 alert('请填写有效信息');
                 return;
             }
 
-            // 保存到本地存储
             localStorage.setItem('firstDate', firstDate);
             localStorage.setItem('interval', interval);
 
-            // 计算值班日期
             const startDate = new Date(firstDate);
             const intervalNum = parseInt(interval);
             dutyDates = [];
 
-            for (let i = 0; i < 365; i++) { // 计算一年内的值班日期
+            for (let i = 0; i < 365; i++) {
                 let nextDate = new Date(startDate);
                 nextDate.setDate(startDate.getDate() + (i * intervalNum));
-                if (nextDate.getFullYear() > startDate.getFullYear() + 1) break; // 限制一年
+                if (nextDate.getFullYear() > startDate.getFullYear() + 1) break;
                 dutyDates.push(nextDate.toISOString().split('T')[0]);
             }
 
-            // 显示日历
             renderCalendar();
             document.getElementById('calendarSection').style.display = 'block';
         }
@@ -159,12 +210,10 @@
             const monthYear = document.getElementById('monthYear');
             calendar.innerHTML = '';
 
-            // 设置当前月份
             const year = currentDate.getFullYear();
             const month = currentDate.getMonth();
             monthYear.textContent = `${year}年 ${month + 1}月`;
 
-            // 星期标题
             const daysOfWeek = ['日', '一', '二', '三', '四', '五', '六'];
             daysOfWeek.forEach(day => {
                 const div = document.createElement('div');
@@ -173,29 +222,23 @@
                 calendar.appendChild(div);
             });
 
-            // 获取当月第一天和最后一天
             const firstDay = new Date(year, month, 1);
             const lastDay = new Date(year, month + 1, 0);
-            const startDay = firstDay.getDay(); // 第一天是星期几
+            const startDay = firstDay.getDay();
 
-            // 填充空白
             for (let i = 0; i < startDay; i++) {
-                const div = document.createElement('div');
-                calendar.appendChild(div);
+                calendar.appendChild(document.createElement('div'));
             }
 
-            // 填充日期
             for (let day = 1; day <= lastDay.getDate(); day++) {
                 const div = document.createElement('div');
                 const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
                 div.textContent = day;
 
-                // 标记值班日
                 if (dutyDates.includes(dateStr)) {
                     div.classList.add('duty-day');
                 }
 
-                // 标记今天
                 const today = new Date().toISOString().split('T')[0];
                 if (dateStr === today) {
                     div.classList.add('today');
