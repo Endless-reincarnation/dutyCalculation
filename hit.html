@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+  <meta charset="UTF-8">
+  <title>test</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+    }
+
+    button {
+      padding: 10px 20px;
+      margin: 10px;
+      font-size: 16px;
+    }
+  </style>
+</head>
+
+<body>
+
+  <button id="loginBtn">111</button>
+  <button id="sendBtn" disabled>222</button>
+
+  <script>
+    let authToken = null;
+
+    document.getElementById('loginBtn').addEventListener('click', async () => {
+      const loginPayload = {
+        loginName: "cyx",
+        loginPassword: "crm123",
+        deviceId: "_cz",
+        customParams: "_cz"
+      };
+
+      try {
+        const response = await fetch("https://crm-prod.ysun365.com/eap/index/login", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "accessType": "mobile",
+            "Origin": "https://crm-prod.ysun365.com",
+            "Referer": "https://crm-prod.ysun365.com",
+            "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 18_5 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148 APICloud"
+          },
+          body: JSON.stringify(loginPayload)
+        });
+
+        const result = await response.json();
+
+        if (result.code === "0" && result.data?.result?.token) {
+          authToken = result.data.result.token;
+          alert("登录成功！");
+          document.getElementById('sendBtn').disabled = false;
+        } else {
+          alert("登录失败：" + (result.message || "未知错误"));
+        }
+      } catch (err) {
+        alert("登录请求失败: " + err.message);
+      }
+    });
+
+    function getTypeByTime() {
+      const now = new Date();
+      const hour = now.getHours();
+      const minutes = now.getMinutes();
+      const totalMinutes = hour * 60 + minutes;
+
+      if (totalMinutes >= 0 && totalMinutes <= 510) {
+        return "0001"; // 0:00 - 08:30
+      } else if (totalMinutes >= 720 && totalMinutes <= 765) {
+        return "0002"; // 12:00 - 12:45
+      } else if (totalMinutes >= 766 && totalMinutes <= 810) {
+        return "0003"; // 12:46 - 13:30
+      } else {
+        return "0004"; // 13:31 - 23:59
+      }
+    }
+
+    function randomizeCoordinate(baseCoord) {
+      // 保留到小数点后9位，但最后一位随机成0-9中的一个
+      const str = baseCoord.toFixed(9).toString();
+      const randomDigit = Math.floor(Math.random() * 10);
+      return parseFloat(str.slice(0, -1) + randomDigit);
+    }
+
+    document.getElementById('sendBtn').addEventListener('click', async () => {
+      if (!authToken) {
+        alert("请先登录！");
+        return;
+      }
+
+      const type = getTypeByTime();
+
+      const baseLongitude = 117.165785170; // 原始经度
+      const baseLatitude = 34.267288197;   // 原始纬度
+
+      const longitude = randomizeCoordinate(baseLongitude);
+      const latitude = randomizeCoordinate(baseLatitude);
+
+      const sendPayload = {
+        userId: "2ebf2a1889bd4341973bb5fd73fccf14",
+        jsonStr: JSON.stringify({
+          type: type,
+          longitude: longitude,
+          latitude: latitude,
+          address: "江苏省徐州市泉山区二环西路176号"
+        })
+      };
+
+      try {
+        const response = await fetch("https://crm-prod.ysun365.com/eap/attendance/addAttendance", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": authToken,
+            "accessType": "mobile",
+            "Origin": "https://crm-prod.ysun365.com",
+            "Referer": "https://crm-prod.ysun365.com/czmobile/main/addAttendance",
+            "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 18_5 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148 APICloud"
+          },
+          body: JSON.stringify(sendPayload)
+        });
+
+        if (response.ok) {
+          alert("发送成功！");
+        } else {
+          alert("发送失败，状态码: " + response.status);
+        }
+      } catch (err) {
+        alert("发送请求失败: " + err.message);
+      }
+    });
+  </script>
+
+</body>
+
+</html>
