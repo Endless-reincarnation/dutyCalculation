@@ -40,8 +40,8 @@
           headers: {
             "Content-Type": "application/json",
             "accessType": "mobile",
-            "Origin": "https://crm-prod.ysun365.com",
-            "Referer": "https://crm-prod.ysun365.com",
+            "Origin": "http://218.3.161.98:6868",
+            "Referer": "http://218.3.161.98:6868",
             "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 18_5 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148 APICloud"
           },
           body: JSON.stringify(loginPayload)
@@ -110,14 +110,14 @@
       };
 
       try {
-        const response = await fetch("https://crm-prod.ysun365.com/eap/attendance/addAttendance", {
+        const response = await fetch("http://218.3.161.98:6868/eap/attendance/addAttendance", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
             "Authorization": authToken,
             "accessType": "mobile",
-            "Origin": "https://crm-prod.ysun365.com",
-            "Referer": "https://crm-prod.ysun365.com/czmobile/main/addAttendance",
+            "Origin": "http://218.3.161.98:6868",
+            "Referer": "http://218.3.161.98:6868/czmobile/main/addAttendance",
             "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 18_5 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148 APICloud"
           },
           body: JSON.stringify(sendPayload)
