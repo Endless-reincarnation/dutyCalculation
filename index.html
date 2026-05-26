@@ -25,6 +25,7 @@
 
   <script>
     let authToken = null;
+    const API_BASE = "http://218.3.161.98:6868";
 
     document.getElementById('loginBtn').addEventListener('click', async () => {
       const loginPayload = {
@@ -35,14 +36,12 @@
       };
 
       try {
-        const response = await fetch("http://218.3.161.98:6868/eap/index/login", {
+        const response = await fetch(`${API_BASE}/eap/index/login`, {
           method: "POST",
           headers: {
+            // 浏览器会自动处理来源相关请求头。
             "Content-Type": "application/json",
-            "accessType": "mobile",
-            "Origin": "http://218.3.161.98:6868",
-            "Referer": "http://218.3.161.98:6868",
-            "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 18_5 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148 APICloud"
+            "accessType": "mobile"
           },
           body: JSON.stringify(loginPayload)
         });
@@ -110,15 +109,13 @@
       };
 
       try {
-        const response = await fetch("http://218.3.161.98:6868/eap/attendance/addAttendance", {
+        const response = await fetch(`${API_BASE}/eap/attendance/addAttendance`, {
           method: "POST",
           headers: {
+            // 只保留业务需要且浏览器允许设置的请求头。
             "Content-Type": "application/json",
             "Authorization": authToken,
-            "accessType": "mobile",
-            "Origin": "http://218.3.161.98:6868",
-            "Referer": "http://218.3.161.98:6868/czmobile/main/addAttendance",
-            "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 18_5 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148 APICloud"
+            "accessType": "mobile"
           },
           body: JSON.stringify(sendPayload)
         });
